@@ -6,7 +6,7 @@
   "author": "João Vitor <jvitor52@yahoo.com.br>",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon --ignore '*.spec.ts' src/index.ts",
+    "dev": "nodemon src/index.ts",
     "up": "docker compose up",
     "prisma:pull": "npx prisma db pull && prisma generate",
     "prisma:push": "npx prisma db push",
@@ -15,7 +15,8 @@
     "prisma:seed": "npx prisma db seed",
     "build": "tsc",
     "start": "node --trace-gc --max-old-space-size=3072 -r ts-node/register src/index.ts",
-    "test": "jest"
+    "test": "jest",
+    "vercel-build":"npx prisma migrate deploy"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
