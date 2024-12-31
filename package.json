@@ -15,8 +15,7 @@
     "prisma:seed": "npx prisma db seed",
     "build": "tsc",
     "start": "node --trace-gc --max-old-space-size=3072 -r ts-node/register src/index.ts",
-    "test": "jest",
-    "vercel-build":"npx prisma migrate deploy"
+    "test": "jest"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
