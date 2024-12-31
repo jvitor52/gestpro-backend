@@ -1,0 +1,57 @@
+---
+#-----------------------------------------------------#
+#                 ContainerConfig                     #
+#-----------------------------------------------------#
+containerPort: 3000
+replicaCount: 1
+#-----------------------------------------------------#
+#                    Monitoring                       #
+#-----------------------------------------------------#
+servicemonitor:
+  enabled: false
+
+#-----------------------------------------------------#
+#                  Connection port                    #
+#-----------------------------------------------------#
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80
+#-----------------------------------------------------#
+#                  Resources Host                     #
+#-----------------------------------------------------#
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: 500m
+    memory: 6Gi
+#-----------------------------------------------------#
+#                  Ingress Host                       #
+#-----------------------------------------------------#
+ingress:
+  enabled: true
+  ingressClassName: nginx-cloud
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: '500m'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '600'
+  hosts:
+    - name: sgp-backend
+      private: false
+      domain: bancodeimagens.io
+  path: /
+  pathType: ImplementationSpecific
+  secret:
+    enabled: false
+#-----------------------------------------------------#
+#                       Hpa                           #
+#-----------------------------------------------------#
+autoscaling:
+  enabled: false
+#-----------------------------------------------------#
+#                     Secret                          #
+#-----------------------------------------------------#
+secret:
+  enabled: false

@@ -1,0 +1,354 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API REST Sistema de Gestão de Pesquisa",
+    "version": "1.0.0",
+    "description": "API que oferece endpoints para gerenciar dados e operações administrativas no contexto de pesquisas. Permite o gerenciamento de informações de funcionários, contratos, centros e anexos de pagamento. As funcionalidades incluem criação, atualização, exclusão e listagem de registros, com suporte a paginação e autenticação. Esta API é projetada para integrar-se a sistemas de front-end, fornecendo uma estrutura de dados robusta e segura para aplicações de pesquisa e análise.",
+    "license": {
+      "name": "VPA",
+      "url": ""
+    },
+    "contact": {
+      "name": "João Vitor dos Santos",
+      "email": "jvitor52@yahoo.com.br"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://qa.platform.com.br",
+      "description": "API Homologação"
+    },
+    {
+      "url": "https://www.platform.com.br",
+      "description": "API Produção"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "API Local"
+    }
+  ],
+  "paths": {
+    "/user/login": {
+      "post": {
+        "tags": ["Usuários"],
+        "summary": "Realizar login de usuário",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "usuario@einstein.br"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "senha123"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Retorna os dados do usuário e o token JWT.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "user": {
+                    "uid": "user-uid",
+                    "uid_keycloak": "keycloak-uid",
+                    "name": "Nome do Usuário",
+                    "email": "email@exemplo.com",
+                    "created_at": "data-criação",
+                    "updated_at": "data-atualização",
+                    "user_status": [
+                      {
+                        "status": "Ativo"
+                      }
+                    ]
+                  },
+                  "token": {
+                    "access_token": "jwt-token",
+                    "expires_in": 3600,
+                    "refresh_expires_in": 1800,
+                    "refresh_token": "refresh-token",
+                    "token_type": "Bearer",
+                    "id_token": "id-token",
+                    "scope": "openid profile email"
+                  }
+                }
+              }
+            }
+          },
+
+          "401": {
+            "description": "Usuário não existe ou não está ativo."
+          }
+        }
+      }
+    },
+    "/user/refreshToken": {
+      "post": {
+        "tags": ["Usuários"],
+        "summary": "Atualizar o token JWT",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh_token": {
+                    "type": "string",
+                    "example": "<refresh_token>"
+                  }
+                },
+                "required": ["refresh_token"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Retorna um novo token JWT."
+          },
+          "400": {
+            "description": "Token de atualização inválido."
+          }
+        }
+      }
+    },
+    "/user/pagination": {
+      "get": {
+        "tags": ["Usuários"],
+        "summary": "Obter lista de usuários com paginação",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Termo de busca",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "required": true,
+            "description": "Número de registros por página",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": true,
+            "description": "Número de registros a serem ignorados (paginação)",
+            "schema": {
+              "type": "integer",
+              "example": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna a lista paginada de usuários.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "total": 100,
+                  "data": [{ "uid": "123", "name": "Raul", "status": "Ativo" }]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{uid}": {
+      "get": {
+        "tags": ["Usuários"],
+        "summary": "Obter dados de um usuário pelo UID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "path",
+            "required": true,
+            "description": "Identificador único do usuário",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna os dados do usuário."
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          }
+        }
+      },
+      "put": {
+        "tags": ["Usuários"],
+        "summary": "Atualizar dados de um usuário",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Novo Nome"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "novo.email@einstein.br"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["Ativo", "Inativo"],
+                    "example": "Ativo"
+                  }
+                },
+                "required": ["name", "email", "status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário atualizado com sucesso."
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Usuários"],
+        "summary": "Deletar um usuário",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário desativado."
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          }
+        }
+      }
+    },
+    "/user/active": {
+      "get": {
+        "tags": ["Usuários"],
+        "summary": "Obter todos os usuários ativos",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Retorna a lista de usuários ativos.",
+            "content": {
+              "application/json": {
+                "example": [{ "uid": "123", "name": "Raul", "status": "Ativo" }]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user": {
+      "post": {
+        "tags": ["Usuários"],
+        "summary": "Criar um novo usuário",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "João Silva"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "joao.silva@einstein.br"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "senhaSegura123"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["Ativo", "Inativo"],
+                    "example": "Ativo"
+                  }
+                },
+                "required": ["name", "email", "password", "status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "uid": "123",
+                  "name": "João Silva",
+                  "email": "joao.silva@einstein.br",
+                  "status": "Ativo"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflito: Email já existente."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

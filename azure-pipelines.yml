@@ -1,0 +1,15 @@
+resources:
+  repositories:
+    - repository: DevOps
+      name: 'MARIA II/proadi.azure-devops'
+      type: git
+      ref: main
+
+stages:
+  - template: codequality/container.yaml@DevOps
+  - template: build/container.yaml@DevOps
+  - template: deploy/fluxcd.yaml@DevOps
+    parameters:
+      values_dev: gestpro.backebd-DEV
+      values_prod: gestpro.backebd-PROD
+  - template: tag/repository.yaml@DevOps

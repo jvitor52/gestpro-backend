@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "cockroachdb"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model unidade_medida {
+  id      Int       @id @default(sequence(maxValue: 2147483647))
+  nome    String    @db.String(100)
+  sigla   String    @db.String(3)
+  ativo   Boolean   @default(true)
+  produto produto[]
+}
+
+model estado {
+  id          Int           @id @default(sequence(maxValue: 2147483647))
+  nome        String        @db.String(100)
+  sigla       String        @db.String(100)
+  ativo       Boolean       @default(true)
+  created_at  DateTime      @default(now())
+  updated_at  DateTime?
+  cidade      cidade[]
+  empresa     empresa[]
+  fornecedor  fornecedor[]
+  cliente     cliente[]
+  funcionario funcionario[]
+}
+
+model cidade {
+  id          Int           @id @default(sequence(maxValue: 2147483647))
+  nome        String        @db.String(100)
+  ativo       Boolean       @default(true)
+  estado_id   Int?
+  created_at  DateTime      @default(now())
+  updated_at  DateTime?
+  empresa     empresa[]
+  fornecedor  fornecedor[]
+  cliente     cliente[]
+  funcionario funcionario[]
+  estado      estado?       @relation(fields: [estado_id], references: [id])
+
+  @@index([id])
+  @@index([estado_id])
+}
+
+model empresa {
+  id            Int       @id @default(sequence(maxValue: 2147483647))
+  razao_social  String    @db.String(255)
+  nome_fantasia String    @db.String(255)
+  cpf_cnpj      String    @db.String(100)
+  endereco      String    @db.String(255)
+  email         String    @db.String(100)
+  telefone      String    @db.String(20)
+  celular       String    @db.String(20)
+  estado_id     Int?
+  cidade_id     Int?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime?
+  ativo         Boolean   @default(true)
+  usuario       usuario[]
+  estado        estado?   @relation(fields: [estado_id], references: [id])
+  cidade        cidade?   @relation(fields: [cidade_id], references: [id])
+
+  @@index([id])
+  @@index([estado_id])
+  @@index([cidade_id])
+}
+
+model log {
+  id           Int      @id @default(sequence(maxValue: 2147483647))
+  method       String   @db.String(255)
+  uid_user     String?  @db.String(100)
+  status       String?  @db.String(100)
+  payload      String   @db.String(255)
+  request_path String   @db.String(255)
+  response     String?  @db.String(255)
+  created_at   DateTime @default(now())
+}
+
+model usuario {
+  id         String    @id @default(uuid()) @db.Uuid
+  uid        String    @unique @db.String(255)
+  nome       String
+  email      String    @unique @db.String(255)
+  senha      String    @db.String(4000)
+  ativo      Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime?
+  empresa_id Int?
+  empresa    empresa?  @relation(fields: [empresa_id], references: [id])
+
+  @@index([id])
+  @@index([empresa_id])
+}
+
+model fornecedor {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String  @db.String(255)
+  cpf_cnpj  String  @db.String(255)
+  tipo      String  @db.String(1)
+  endereco  String  @db.String(255)
+  email     String  @db.String(100)
+  telefone  String  @db.String(20)
+  celular   String  @db.String(20)
+  estado_id Int?
+  cidade_id Int?
+  ativo     Boolean @default(true)
+  estado    estado? @relation(fields: [estado_id], references: [id])
+  cidade    cidade? @relation(fields: [cidade_id], references: [id])
+
+  @@index([id])
+  @@index([estado_id])
+  @@index([cidade_id])
+}
+
+model cliente {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String  @db.String(255)
+  cpf_cnpj  String  @db.String(255)
+  tipo      String  @db.String(1)
+  endereco  String  @db.String(255)
+  email     String  @db.String(100)
+  telefone  String  @db.String(20)
+  celular   String  @db.String(20)
+  estado_id Int?
+  cidade_id Int?
+  ativo     Boolean @default(true)
+  estado    estado? @relation(fields: [estado_id], references: [id])
+  cidade    cidade? @relation(fields: [cidade_id], references: [id])
+
+  @@index([id])
+  @@index([estado_id])
+  @@index([cidade_id])
+}
+
+model funcionario {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String  @db.String(255)
+  cpf       String  @db.String(255)
+  tipo      String  @db.String(1)
+  endereco  String  @db.String(255)
+  email     String  @db.String(100)
+  telefone  String  @db.String(20)
+  celular   String  @db.String(20)
+  estado_id Int?
+  cidade_id Int?
+  ativo     Boolean @default(true)
+  estado    estado? @relation(fields: [estado_id], references: [id])
+  cidade    cidade? @relation(fields: [cidade_id], references: [id])
+
+  @@index([id])
+  @@index([estado_id])
+  @@index([cidade_id])
+}
+
+model produto {
+  id                String          @id @default(uuid()) @db.Uuid
+  nome              String          @db.String(255)
+  descricao         String          @db.String(255)
+  tipo              String          @db.String(1)
+  endereco          String          @db.String(255)
+  email             String          @db.String(100)
+  telefone          String          @db.String(20)
+  celular           String          @db.String(20)
+  unidade_medida_id Int?
+  preco_compra      Decimal
+  preco_venda       Decimal
+  porcetagem_lucro  Decimal
+  quantidade        Decimal
+  estoque_minimo    Decimal
+  ativo             Boolean         @default(true)
+  unidade_medida    unidade_medida? @relation(fields: [unidade_medida_id], references: [id])
+
+  @@index([id])
+  @@index([unidade_medida_id])
+}
+
+enum crdb_internal_region {
+  aws_us_east_1 @map("aws-us-east-1")
+}

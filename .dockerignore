@@ -1,0 +1,7 @@
+.env
+*.env
+insomnia/Insomnia_2024-11-08.json
+storage/logs/*.log
+.npm/
+.npmrc
+.npm/_cacache
